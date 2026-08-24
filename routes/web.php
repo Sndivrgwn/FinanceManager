@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginControlller;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,6 +15,8 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::post('/logout', LogoutController::class)->middleware('auth')->name('logout');
+    Route::view('/add-wallet', 'wallet.add');
+    Route::post('/add-wallet', [WalletController::class, 'store']);
 });
 
 Route::view('/login', 'auth.login')->name("login");

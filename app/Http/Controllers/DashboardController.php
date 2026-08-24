@@ -10,7 +10,8 @@ class DashboardController extends Controller
     public function index() {
         $userController = app(UserController::class);
         $users = $userController->index();
+        $wallets = app(WalletController::class)->index();
 
-        return view("dashboard", compact("users"));
+        return view("dashboard", compact("users", "wallets"));
     }
 }
