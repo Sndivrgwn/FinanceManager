@@ -34,4 +34,27 @@ class Format
             default => $type,
         };
     }
+
+    public static function walletTypeColor(string $type): string
+    {
+        return match ($type) {
+            'CASH' => 'amber',
+            'BANK' => 'sky',
+            'E_WALLET' => 'violet',
+            default => 'slate',
+        };
+    }
+
+    /**
+     * Label untuk tipe INCOME / EXPENSE (transaksi maupun kategori).
+     */
+    public static function flowType(string $type): string
+    {
+        return $type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
+    }
+
+    public static function flowTypeColor(string $type): string
+    {
+        return $type === 'INCOME' ? 'emerald' : 'red';
+    }
 }

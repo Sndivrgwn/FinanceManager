@@ -1,56 +1,52 @@
+@use('App\Support\Format')
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wallets</title>
-</head>
-<body>
-    <h1>My Wallets</h1>
+@section('title', 'Wallet')
 
-    <a href="{{ route('wallets.create') }}">+ Tambah Wallet</a>
+@section('content')
+    <x-page-header title="Wallet" subtitle="Kelola dompet, rekening bank, dan e-wallet kamu.">
+        <x-button :href="route('wallets.create')">+ Tambah Wallet</x-button>
+    </x-page-header>
 
-    @if (session('success'))
-        <p style="color: green">{{ session('success') }}</p>
-    @endif
+    <x-card>
+        @if ($wallets->isEmpty())
+            <x-empty-state message="Belum ada wallet.">
+                <x-button :href="route('wallets.create')">Buat wallet pertama</x-button>
+            </x-empty-state>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-left text-xs uppercase text-slate-500">
+                            <th class="px-5 py-3 font-medium">Nama</th>
+                            <th class="px-5 py-3 font-medium">Tipe</th>
+                            <th class="px-5 py-3 text-right font-medium">Saldo</th>
+                            <th class="px-5 py-3 text-right font-medium">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach ($wallets as $wallet)
+                            <tr>
+                                <td class="px-5 py-3 font-medium text-slate-800">{{ $wallet->name }}</td>
+                                <td class="px-5 py-3">
+                                    <x-badge :color="Format::walletTypeColor($wallet->type)">
+                                        {{ Format::walletType($wallet->type) }}
+                                    </x-badge>
+                                </td>
+                                <td class="whitespace-nowrap px-5 py-3 text-right font-semibold text-slate-900">
+                                    {{ Format::rupiah($wallet->balance) }}
+                                </td>
+                                <td class="px-5 py-3">
+                                    <x-row-actions resource="wallets" :model="$wallet"
+                                        message="Yakin ingin menghapus wallet ini?" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </x-card>
 
-    @if (session('error'))
-        <p style="color: red">{{ session('error') }}</p>
-    @endif
-
-    @forelse ($wallets as $wallet)
-        <hr>
-
-        <h3>{{ $wallet->name }}</h3>
-
-        <p>
-            Jenis:
-            {{ str_replace('_', ' ', $wallet->type) }}
-        </p>
-
-        <p>
-            Saldo:
-            Rp{{ number_format((float) $wallet->balance, 2, ',', '.') }}
-        </p>
-
-        <a href="{{ route('wallets.show', $wallet) }}">Detail</a>
-        |
-        <a href="{{ route('wallets.edit', $wallet) }}">Edit</a>
-
-        <form action="{{ route('wallets.destroy', $wallet) }}"
-              method="POST"
-              style="display: inline"
-              onsubmit="return confirm('Yakin ingin menghapus wallet ini?')">
-            @csrf
-            @method('DELETE')
-
-            <button type="submit">Hapus</button>
-        </form>
-    @empty
-        <p>Belum ada wallet. Silakan tambahkan wallet pertama kamu.</p>
-    @endforelse
-
-    {{ $wallets->links() }}
-</body>
-</html>
+    <x-pagination :paginator="$wallets" />
+@endsection

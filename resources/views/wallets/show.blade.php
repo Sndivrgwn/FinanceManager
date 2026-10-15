@@ -1,32 +1,28 @@
+@use('App\Support\Format')
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Wallet</title>
-</head>
-<body>
-    <h1>Detail Wallet</h1>
+@section('title', 'Detail Wallet')
 
-    <p><strong>Nama:</strong> {{ $wallet->name }}</p>
+@section('content')
+    <x-page-header title="Detail Wallet">
+        <x-button :href="route('wallets.index')" variant="secondary">Kembali</x-button>
+        <x-button :href="route('wallets.edit', $wallet)">Edit</x-button>
+        <x-delete-form :action="route('wallets.destroy', $wallet)"
+            message="Yakin ingin menghapus wallet ini?" size="md" />
+    </x-page-header>
 
-    <p>
-        <strong>Jenis:</strong>
-        {{ str_replace('_', ' ', $wallet->type) }}
-    </p>
-
-    <p>
-        <strong>Saldo:</strong>
-        Rp{{ number_format((float) $wallet->balance, 2, ',', '.') }}
-    </p>
-
-    <p>
-        <strong>Dibuat:</strong>
-        {{ $wallet->created_at->format('d-m-Y H:i') }}
-    </p>
-
-    <a href="{{ route('wallets.index') }}">Kembali</a>
-    <a href="{{ route('wallets.edit', $wallet) }}">Edit Wallet</a>
-</body>
-</html>
+    <x-card class="max-w-2xl">
+        <dl class="divide-y divide-slate-100">
+            <x-detail label="Nama">{{ $wallet->name }}</x-detail>
+            <x-detail label="Tipe">
+                <x-badge :color="Format::walletTypeColor($wallet->type)">
+                    {{ Format::walletType($wallet->type) }}
+                </x-badge>
+            </x-detail>
+            <x-detail label="Saldo">
+                <span class="text-lg font-bold">{{ Format::rupiah($wallet->balance) }}</span>
+            </x-detail>
+            <x-detail label="Dibuat">{{ Format::date($wallet->created_at) }}</x-detail>
+        </dl>
+    </x-card>
+@endsection

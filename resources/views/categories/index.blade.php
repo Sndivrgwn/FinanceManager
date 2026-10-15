@@ -1,53 +1,48 @@
+@use('App\Support\Format')
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories</title>
-</head>
-<body>
-    <h1>My Categories</h1>
+@section('title', 'Kategori')
 
-    <a href="{{ route('categories.create') }}">+ Tambah Kategori</a>
+@section('content')
+    <x-page-header title="Kategori" subtitle="Kelompokkan pemasukan dan pengeluaran kamu.">
+        <x-button :href="route('categories.create')">+ Tambah Kategori</x-button>
+    </x-page-header>
 
-    @if (session('success'))
-        <p style="color: green">{{ session('success') }}</p>
-    @endif
+    <x-card>
+        @if ($categories->isEmpty())
+            <x-empty-state message="Belum ada kategori.">
+                <x-button :href="route('categories.create')">Buat kategori pertama</x-button>
+            </x-empty-state>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-left text-xs uppercase text-slate-500">
+                            <th class="px-5 py-3 font-medium">Nama</th>
+                            <th class="px-5 py-3 font-medium">Tipe</th>
+                            <th class="px-5 py-3 text-right font-medium">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach ($categories as $category)
+                            <tr>
+                                <td class="px-5 py-3 font-medium text-slate-800">{{ $category->name }}</td>
+                                <td class="px-5 py-3">
+                                    <x-badge :color="Format::flowTypeColor($category->type)">
+                                        {{ Format::flowType($category->type) }}
+                                    </x-badge>
+                                </td>
+                                <td class="px-5 py-3">
+                                    <x-row-actions resource="categories" :model="$category"
+                                        message="Yakin ingin menghapus kategori ini?" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </x-card>
 
-    @if (session('error'))
-        <p style="color: red">{{ session('error') }}</p>
-    @endif
-
-    @forelse ($categories as $category)
-        <hr>
-
-        <h3>{{ $category->name }}</h3>
-
-        <p>
-            Tipe:
-            {{ $category->type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran' }}
-        </p>
-
-        <a href="{{ route('categories.show', $category) }}">Detail</a>
-        |
-        <a href="{{ route('categories.edit', $category) }}">Edit</a>
-
-        <form
-            action="{{ route('categories.destroy', $category) }}"
-            method="POST"
-            style="display: inline"
-            onsubmit="return confirm('Yakin ingin menghapus kategori ini?')"
-        >
-            @csrf
-            @method('DELETE')
-
-            <button type="submit">Hapus</button>
-        </form>
-    @empty
-        <p>Belum ada kategori.</p>
-    @endforelse
-
-    {{ $categories->links() }}
-</body>
-</html>
+    <x-pagination :paginator="$categories" />
+@endsection

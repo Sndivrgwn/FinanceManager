@@ -1,104 +1,59 @@
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-1">Transfer</h1>
-            <p class="text-muted mb-0">
-                Riwayat perpindahan saldo antar-wallet.
-            </p>
-        </div>
+@use('App\Support\Format')
+@extends('layouts.app')
 
-        <a href="{{ route('transfers.create') }}"
-           class="btn btn-primary">
-            + Tambah Transfer
-        </a>
-    </div>
+@section('title', 'Transfer')
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+@section('content')
+    <x-page-header title="Transfer" subtitle="Pindahkan uang antar wallet. Transfer tidak dihitung sebagai pemasukan atau pengeluaran.">
+        <x-button :href="route('transfers.create')">+ Tambah Transfer</x-button>
+    </x-page-header>
 
-    @if ($transfers->isEmpty())
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <h5>Belum ada transfer</h5>
-                <p class="text-muted">
-                    Tambahkan transfer pertama untuk memindahkan saldo antar-wallet.
-                </p>
-                <a href="{{ route('transfers.create') }}"
-                   class="btn btn-primary">
-                    Tambah Transfer
-                </a>
-            </div>
-        </div>
-    @else
-        <div class="card">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Dari Wallet</th>
-                            <th>Ke Wallet</th>
-                            <th>Jumlah</th>
-                            <th>Keterangan</th>
-                            <th class="text-end">Aksi</th>
+    <x-card>
+        @if ($transfers->isEmpty())
+            <x-empty-state message="Belum ada transfer.">
+                <x-button :href="route('transfers.create')">Buat transfer pertama</x-button>
+            </x-empty-state>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-left text-xs uppercase text-slate-500">
+                            <th class="px-5 py-3 font-medium">Tanggal</th>
+                            <th class="px-5 py-3 font-medium">Dari &rarr; Ke</th>
+                            <th class="px-5 py-3 text-right font-medium">Nominal</th>
+                            <th class="px-5 py-3 text-right font-medium">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-slate-100">
                         @foreach ($transfers as $transfer)
                             <tr>
-                                <td>
-                                    {{ $transfer->transfer_date->format('d/m/Y') }}
+                                <td class="whitespace-nowrap px-5 py-3 text-slate-600">
+                                    {{ Format::date($transfer->transfer_date) }}
                                 </td>
-                                <td>
-                                    {{ $transfer->fromWallet->name }}
+                                <td class="px-5 py-3">
+                                    <p class="font-medium text-slate-800">
+                                        {{ $transfer->fromWallet?->name ?? '-' }}
+                                        <span class="text-slate-400">&rarr;</span>
+                                        {{ $transfer->toWallet?->name ?? '-' }}
+                                    </p>
+                                    @if ($transfer->description)
+                                        <p class="max-w-xs truncate text-xs text-slate-400">{{ $transfer->description }}</p>
+                                    @endif
                                 </td>
-                                <td>
-                                    {{ $transfer->toWallet->name }}
+                                <td class="whitespace-nowrap px-5 py-3 text-right font-semibold text-slate-900">
+                                    {{ Format::rupiah($transfer->amount) }}
                                 </td>
-                                <td class="fw-semibold">
-                                    Rp{{ number_format((float) $transfer->amount, 2, ',', '.') }}
-                                </td>
-                                <td>
-                                    {{ $transfer->description ?: '-' }}
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a href="{{ route('transfers.show', $transfer) }}"
-                                           class="btn btn-sm btn-outline-info">
-                                            Detail
-                                        </a>
-
-                                        <a href="{{ route('transfers.edit', $transfer) }}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            Edit
-                                        </a>
-
-                                        <form action="{{ route('transfers.destroy', $transfer) }}"
-                                              method="POST"
-                                              onsubmit="return confirm('Yakin ingin menghapus transfer ini? Saldo wallet akan disesuaikan.');">
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger">
-                                                Hapus
-                                            </button>
-                                        </form>
-                                    </div>
+                                <td class="px-5 py-3">
+                                    <x-row-actions resource="transfers" :model="$transfer"
+                                        message="Yakin ingin menghapus transfer ini?" />
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+        @endif
+    </x-card>
 
-            <div class="card-body">
-                {{ $transfers->links() }}
-            </div>
-        </div>
-    @endif
-</div>
-
+    <x-pagination :paginator="$transfers" />
+@endsection

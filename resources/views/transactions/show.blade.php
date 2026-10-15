@@ -1,39 +1,36 @@
+@use('App\Support\Format')
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Transaksi</title>
-</head>
-<body>
-    <h1>Detail Transaksi</h1>
+@section('title', 'Detail Transaksi')
 
-    <p>
-        <strong>Tipe:</strong>
-        {{ $transaction->type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran' }}
-    </p>
+@section('content')
+    @php $isIncome = $transaction->type === 'INCOME'; @endphp
 
-    <p>
-        <strong>Nominal:</strong>
-        {{ $transaction->type === 'INCOME' ? '+' : '-' }}
-        Rp{{ number_format((float) $transaction->amount, 2, ',', '.') }}
-    </p>
+    <x-page-header title="Detail Transaksi">
+        <x-button :href="route('transactions.index')" variant="secondary">Kembali</x-button>
+        <x-button :href="route('transactions.edit', $transaction)">Edit</x-button>
+        <x-delete-form :action="route('transactions.destroy', $transaction)"
+            message="Yakin ingin menghapus transaksi ini?" size="md" />
+    </x-page-header>
 
-    <p><strong>Wallet:</strong> {{ $transaction->wallet->name }}</p>
-    <p><strong>Kategori:</strong> {{ $transaction->category->name }}</p>
-
-    <p>
-        <strong>Tanggal:</strong>
-        {{ $transaction->transaction_date->format('d-m-Y') }}
-    </p>
-
-    <p>
-        <strong>Deskripsi:</strong>
-        {{ $transaction->description ?? '-' }}
-    </p>
-
-    <a href="{{ route('transactions.index') }}">Kembali</a>
-    <a href="{{ route('transactions.edit', $transaction) }}">Edit</a>
-</body>
-</html>
+    <x-card class="max-w-2xl">
+        <dl class="divide-y divide-slate-100">
+            <x-detail label="Tipe">
+                <x-badge :color="Format::flowTypeColor($transaction->type)">
+                    {{ Format::flowType($transaction->type) }}
+                </x-badge>
+            </x-detail>
+            <x-detail label="Nominal">
+                <span class="text-lg font-bold {{ $isIncome ? 'text-emerald-600' : 'text-red-600' }}">
+                    {{ $isIncome ? '+' : '-' }}{{ Format::rupiah($transaction->amount) }}
+                </span>
+            </x-detail>
+            <x-detail label="Wallet">{{ $transaction->wallet?->name ?? '-' }}</x-detail>
+            <x-detail label="Kategori">{{ $transaction->category?->name ?? '-' }}</x-detail>
+            <x-detail label="Tanggal">{{ Format::date($transaction->transaction_date) }}</x-detail>
+            <x-detail label="Deskripsi">
+                <span class="whitespace-pre-line">{{ $transaction->description ?: '-' }}</span>
+            </x-detail>
+        </dl>
+    </x-card>
+@endsection

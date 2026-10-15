@@ -1,90 +1,27 @@
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-1">Detail Transfer</h1>
-            <p class="text-muted mb-0">
-                Informasi lengkap perpindahan saldo.
-            </p>
-        </div>
+@use('App\Support\Format')
+@extends('layouts.app')
 
-        <a href="{{ route('transfers.index') }}"
-           class="btn btn-secondary">
-            Kembali
-        </a>
-    </div>
+@section('title', 'Detail Transfer')
 
-    <div class="card">
-        <div class="card-body">
-            <div class="mb-4">
-                <div class="text-muted small">Jumlah Transfer</div>
-                <h2 class="text-primary">
-                    Rp{{ number_format((float) $transfer->amount, 2, ',', '.') }}
-                </h2>
-            </div>
+@section('content')
+    <x-page-header title="Detail Transfer">
+        <x-button :href="route('transfers.index')" variant="secondary">Kembali</x-button>
+        <x-button :href="route('transfers.edit', $transfer)">Edit</x-button>
+        <x-delete-form :action="route('transfers.destroy', $transfer)"
+            message="Yakin ingin menghapus transfer ini?" size="md" />
+    </x-page-header>
 
-            <hr>
-
-            <div class="row mb-3">
-                <div class="col-md-4 text-muted">Wallet Asal</div>
-                <div class="col-md-8 fw-semibold">
-                    {{ $transfer->fromWallet->name }}
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 text-muted">Wallet Tujuan</div>
-                <div class="col-md-8 fw-semibold">
-                    {{ $transfer->toWallet->name }}
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 text-muted">Tanggal Transfer</div>
-                <div class="col-md-8">
-                    {{ $transfer->transfer_date->format('d/m/Y') }}
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 text-muted">Keterangan</div>
-                <div class="col-md-8">
-                    {{ $transfer->description ?: '-' }}
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4 text-muted">Dibuat</div>
-                <div class="col-md-8">
-                    {{ $transfer->created_at->format('d/m/Y H:i') }}
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-4 text-muted">Terakhir Diperbarui</div>
-                <div class="col-md-8">
-                    {{ $transfer->updated_at->format('d/m/Y H:i') }}
-                </div>
-            </div>
-
-            <hr>
-
-            <div class="d-flex gap-2">
-                <a href="{{ route('transfers.edit', $transfer) }}"
-                   class="btn btn-primary">
-                    Edit Transfer
-                </a>
-
-                <form action="{{ route('transfers.destroy', $transfer) }}"
-                      method="POST"
-                      onsubmit="return confirm('Yakin ingin menghapus transfer ini? Saldo wallet akan disesuaikan.');">
-                    @csrf
-                    @method('DELETE')
-
-                    <button type="submit" class="btn btn-danger">
-                        Hapus Transfer
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+    <x-card class="max-w-2xl">
+        <dl class="divide-y divide-slate-100">
+            <x-detail label="Dari Wallet">{{ $transfer->fromWallet?->name ?? '-' }}</x-detail>
+            <x-detail label="Ke Wallet">{{ $transfer->toWallet?->name ?? '-' }}</x-detail>
+            <x-detail label="Nominal">
+                <span class="text-lg font-bold">{{ Format::rupiah($transfer->amount) }}</span>
+            </x-detail>
+            <x-detail label="Tanggal">{{ Format::date($transfer->transfer_date) }}</x-detail>
+            <x-detail label="Deskripsi">
+                <span class="whitespace-pre-line">{{ $transfer->description ?: '-' }}</span>
+            </x-detail>
+        </dl>
+    </x-card>
+@endsection

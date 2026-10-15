@@ -1,55 +1,13 @@
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Kategori</title>
-</head>
-<body>
-    <h1>Tambah Kategori</h1>
+@section('title', 'Tambah Kategori')
 
-    <a href="{{ route('categories.index') }}">Kembali</a>
+@section('content')
+    <x-page-header title="Tambah Kategori">
+        <x-button :href="route('categories.index')" variant="secondary">Kembali</x-button>
+    </x-page-header>
 
-    @if ($errors->any())
-        <ul style="color: red">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    @endif
+    <x-form-errors />
 
-    <form action="{{ route('categories.store') }}" method="POST">
-        @csrf
-
-        <div>
-            <label for="name">Nama Kategori</label>
-            <input
-                type="text"
-                id="name"
-                name="name"
-                value="{{ old('name') }}"
-                placeholder="Contoh: Makanan"
-                required
-            >
-        </div>
-
-        <div>
-            <label for="type">Tipe Kategori</label>
-            <select id="type" name="type" required>
-                <option value="">Pilih tipe</option>
-
-                <option value="INCOME" @selected(old('type') === 'INCOME')>
-                    Pemasukan
-                </option>
-
-                <option value="EXPENSE" @selected(old('type') === 'EXPENSE')>
-                    Pengeluaran
-                </option>
-            </select>
-        </div>
-
-        <button type="submit">Simpan Kategori</button>
-    </form>
-</body>
-</html>
+    @include('categories._form', ['category' => null])
+@endsection
