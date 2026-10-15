@@ -2,29 +2,41 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'type', 'balance', 'user_id'])]
-
 class Wallet extends Model
 {
-    public function User(): BelongsTo {
+    protected $fillable = [
+        'name',
+        'type',
+        'balance',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'balance' => 'decimal:2',
+        ];
+    }
+
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function Transaction(): HasMany {
+    public function transactions(): HasMany
+    {
         return $this->hasMany(Transaction::class);
     }
 
-    public function sentTransfers()
+    public function sentTransfers(): HasMany
     {
         return $this->hasMany(Transfer::class, 'from_wallet_id');
     }
 
-    public function receivedTransfers()
+    public function receivedTransfers(): HasMany
     {
         return $this->hasMany(Transfer::class, 'to_wallet_id');
     }

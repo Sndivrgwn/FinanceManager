@@ -31,16 +31,21 @@ class User extends Authenticatable
         ];
     }
 
-    public function Category(): HasMany {
+    public function categories(): HasMany
+    {
         return $this->hasMany(Category::class);
     }
-    public function Wallet(): HasMany {
+
+    public function wallets(): HasMany
+    {
         return $this->hasMany(Wallet::class);
     }
-    public function Transaction(): HasMany {
+    public function transactions(): HasMany
+    {
         return $this->hasMany(Transaction::class);
     }
-    public function Transfer(): HasMany {
+    public function transfers(): HasMany
+    {
         return $this->hasMany(Transfer::class);
     }
 }
